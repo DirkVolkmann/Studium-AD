@@ -1,0 +1,16 @@
+LDK 01 #1 in akku
+STA 05 #akku in Adresse 5
+INP 00 #n einlesen
+LDK 00 #0 in akku
+STA 01 #akku in Adresse 1 (i)
+LDA 01 #i in akku laden 
+MUL 01 #i*i
+ADD 02 #erg = erg+(i*i)
+STA 02 #erg in Adresse 
+LDA 01 #i laden
+ADD 05 #i+1
+STA 01 #i speichern
+SUB 00 #i-n
+JLE 06 #wenn (i-n) <= 0 dann springe zu 6
+OUT 02 #Output erg
+HLT 99 #Programmende
