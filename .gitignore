@@ -2,3 +2,5 @@
 */.vs/*
 */.vscode/*
 .vscode/*
+*.zip
+~$*
