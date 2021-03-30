@@ -1,16 +1,24 @@
-LDK 01 #1 in akku
-STA 05 #akku in Adresse 5
-INP 00 #n einlesen
-LDK 00 #0 in akku
-STA 01 #akku in Adresse 1 (i)
-LDA 01 #i in akku laden 
-MUL 01 #i*i
-ADD 02 #erg = erg+(i*i)
-STA 02 #erg in Adresse 
-LDA 01 #i laden
-ADD 05 #i+1
-STA 01 #i speichern
-SUB 00 #i-n
-JLE 06 #wenn (i-n) <= 0 dann springe zu 6
-OUT 02 #Output erg
-HLT 99 #Programmende
+LDK 00 # Akku = 0
+STA 00 # Mem[0] (i) = Akku (0)
+STA 01 # Mem[1] (erg) = Akku (0)
+INP 02 # Mem[2] (n) = stdin
+LDA 00 # Akku = Mem[0] (i)
+ADD 01 # Akku += Mem[1] (erg)
+STA 01 # Mem[1] (erg) = Akku => erg += i
+LDK 01 # Akku = 1
+ADD 00 # Akku += i
+STA 00 # Mem[0] (i) = Akku => i += 1
+SUB 02 # Akku (i) -= Mem[2] (n)
+JLE 05 # wenn (i-n) <= 0 dann springe zu 5
+OUT 01 # stdout Mem[1] (erg)
+HLT 99 # Programmende
+
+/*
+i = 0
+erg = 0
+n = stdin
+do {
+    erg += i
+    i += 1
+} while (i <= n)
+*/
