@@ -116,7 +116,7 @@ void Matrix<T>::RandomFill(T min, T max) {
 		min = max;
 		max = tmp;
 	}
-	// can't "% 0" and trivial solution
+	// trivial solution
 	else if (min == max) {
 		this->Fill(min);
 	}
