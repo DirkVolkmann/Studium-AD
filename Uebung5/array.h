@@ -351,14 +351,38 @@ void Array<T>::QuickSort_RandPivot() {
 	this->QuickSort_RandPivot_(0, n_-1);
 }
 
-// TODO
+// Helper function for MergeSort
 template <typename T>
 void Array<T>::Merge_(int first, int last, int middle) {
 	int i, n = last - first + 1;
-	int arr1_low = first, arr1_high = middle - 1;
-	int arr2_low = middle, arr2_high = last;
+	int arr1_first = first, arr1_last = middle - 1;
+	int arr2_first = middle, arr2_last = last;
 	int *arr_new = new int[n];
 
+	for (i = 0; i < n; i++) {
+		if (arr1_first <= arr1_last) {
+			if (arr2_first <= arr2_last) {
+				if (data_[arr1_first] <= data_[arr2_last]) {
+					arr_new[i] = data_[arr1_first++];
+				}
+				else {
+					arr_new[i] = data_[arr2_first++];
+				}
+			}
+			else {
+				arr_new[i] = data_[arr1_first++];
+			}
+		}
+		else {
+			arr_new[i] = data_[arr2_first++];
+		}
+	}
+
+	for (i = 0; i < n; i++) {
+		data_[first + i] = arr_new[i];
+	}
+
+	delete [] arr_new;
 }
 
 // TODO
