@@ -8,24 +8,32 @@
 template <typename T>
 class Array {
 	private:
-		T* data_;
-		unsigned int n_;
+		T* data_;			// content of array
+		unsigned int n_;	// dimension of array
 		inline void Swap_(unsigned int, unsigned int);
 		int Partition_(int, int);
 		void QuickSortR_(int, int);
+		int Partition_RandPivot_(int, int);
+		void QuickSort_RandPivot_(int, int);
 	public:
 		Array(unsigned int);
 		inline void SetValue(unsigned int, T);
 		inline T GetValue(unsigned int);
 		inline unsigned int Size();
 		void CopyTo(Array<T>*);
-		void Init();
 		void Fill(T);
-		void Print();
 		void RandomFill(T, T);
+		void Init();
+		void Print();
+		inline void Resize(unsigned int);
 		void BubbleSort();
+		void BubbleSort_UseMax();
 		void SelectionSort();
+		void SelectionSort_UseMax();
+		void InsetionSort();
+		void InsertionSort_UseMin();
 		void QuickSort();
+		void QuickSort_RandPivot();
 };
 
 // Create a array with [n] values
@@ -48,7 +56,7 @@ inline T Array<T>::GetValue(unsigned int p) {
 	return data_[p];
 }
 
-// Get number of Columns or [n]-dimension
+// Get number of columns or [n]-dimension
 template <typename T>
 inline unsigned int Array<T>::Size() {
 	return n_;
@@ -56,10 +64,14 @@ inline unsigned int Array<T>::Size() {
 
 template <typename T>
 void Array<T>::CopyTo(Array<T>* arr) {
-	if (this->Size() != arr->Size()) {
-		throw std::out_of_range("array indices out of range");
+	unsigned int n = 0;
+	if (this->Size() <= arr->Size()) {
+		n = this->Size();
 	}
-	for (unsigned int i = 0; i < n_; i++) {
+	else {
+		n = arr->Size();
+	}
+	for (unsigned int i = 0; i < n; i++) {
 		arr->SetValue(i, data_[i]);
 	}
 }
@@ -70,24 +82,6 @@ void Array<T>::Fill(T val) {
 	for (unsigned int i = 0; i < n_; i++) {
 			data_[i] = val;
 	}
-}
-
-// Initialize array with zeros
-template <typename T>
-void Array<T>::Init() {
-	this->Fill(0);
-}
-
-// Print all array values
-template <typename T>
-void Array<T>::Print() {
-	for (unsigned int i = 0; i < n_; i++) {
-		std::cout << data_[i];
-		if (i+1 != n_) {
-			std::cout << " | ";
-		}
-	}
-	std::cout << std::endl;
 }
 
 // Fill array with random values between [min] and [max]
@@ -111,6 +105,31 @@ void Array<T>::RandomFill(T min, T max) {
 	}
 }
 
+// Initialize array with zeros
+template <typename T>
+void Array<T>::Init() {
+	this->Fill(0);
+}
+
+// Print all array values
+template <typename T>
+void Array<T>::Print() {
+	for (unsigned int i = 0; i < n_; i++) {
+		std::cout << data_[i];
+		if (i+1 != n_) {
+			std::cout << " | ";
+		}
+	}
+	std::cout << std::endl;
+}
+
+template <typename T>
+inline void Array<T>::Resize(unsigned int n) {
+	n_ = n;
+	unsigned int len = sizeof(T) * n;
+	data_ = (T *)realloc(data_, len);
+}
+
 // Helper function to swap two elements
 template <typename T>
 inline void Array<T>::Swap_(unsigned int index1, unsigned int index2) {
@@ -125,6 +144,19 @@ void Array<T>::BubbleSort() {
 	unsigned int i, j;
 	for (i = 0; i < n_-1; i++) {
 		for (j = 0; j < n_-i-1; j++) {
+			if (data_[j] > data_[j+1]) {
+				this->Swap_(j, j+1);
+			}
+		}
+	}
+}
+
+// Bubble Sort but maximum moves back
+template <typename T>
+void Array<T>::BubbleSort_UseMax() {
+	unsigned int i, j;
+	for (i = n_; i > 1; i--) {
+		for (j = 0; j < i-1; j++) {
 			if (data_[j] > data_[j+1]) {
 				this->Swap_(j, j+1);
 			}
@@ -152,7 +184,57 @@ void Array<T>::SelectionSort() {
 	}
 }
 
-// Helper function for Quick Sort
+// Selection Sort
+template <typename T>
+void Array<T>::SelectionSort_UseMax() {
+	int i, j, max_idx;
+
+	// One by one move boundary of unsorted subarray
+	for (i = n_; i > 0; i--) {
+		// Find the minimum element in unsorted array
+		max_idx = i;
+		for (j = i-1; j >= 0; j--) {
+			if (data_[j] > data_[max_idx]) {
+				max_idx = j;
+			}
+		}
+
+		// Swap the found minimum element with the first element
+		this->Swap_(max_idx, i);
+	}
+}
+
+template <typename T>
+void Array<T>::InsetionSort() {
+	int key = 0, i, j;
+
+	for (j = 1; j < n_; j++) {
+		key = data_[j];
+		i = j - 1;
+		while (i >= 0 && data_[i] > key) {
+			data_[i+1] = data_[i];
+			i--;
+		}
+		data_[i+1] = key;
+	}
+}
+
+template <typename T>
+void Array<T>::InsertionSort_UseMin() {
+	int key, i, j;
+
+	for (j = n_-1; j >= 0; j--) {
+		key = data_[j];
+		i = j + 1;
+		while (i <= n_ && data_[i] < key) {
+			data_[i-1] = data_[i];
+			i++;
+		}
+		data_[i-1] = key;
+	}
+}
+
+// Helper function for QuickSort
 template <typename T>
 int Array<T>::Partition_(int low, int high) {
 	T pivot = data_[low];
@@ -168,7 +250,7 @@ int Array<T>::Partition_(int low, int high) {
 	return p;
 }
 
-// Recursive helper function for Quick Sort
+// Recursive helper function for QuickSort
 template <typename T>
 void Array<T>::QuickSortR_(int low, int high) {
 	if (low < high) {
@@ -182,6 +264,31 @@ void Array<T>::QuickSortR_(int low, int high) {
 template <typename T>
 void Array<T>::QuickSort() {
 	this->QuickSortR_(0, n_-1);
+}
+
+// Helper function for QuickSort_RandPivot
+template <typename T>
+int Array<T>::Partition_RandPivot_(int low, int high) {
+	srand(time(nullptr));
+	int random = low + rand() % (high - low); 
+	this->Swap_(random, high);
+	return this->Partition_(low, high);
+}
+
+// Recursive helper function for QuickSort_RandPivot
+template <typename T>
+void Array<T>::QuickSort_RandPivot_(int low, int high) {
+	if (low < high) {
+		int part_idx = this->Partition_RandPivot_(low, high);
+		this->QuickSortR_(low, part_idx-1);
+		this->QuickSortR_(part_idx+1, high);
+	}
+}
+
+// Quick Sort but choose pivot randomly
+template <typename T>
+void Array<T>::QuickSort_RandPivot() {
+	this->QuickSort_RandPivot_(0, n_-1);
 }
 
 #endif /* <array.h> included.  */
