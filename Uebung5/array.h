@@ -8,37 +8,84 @@
 template <typename T>
 class Array {
 	private:
+		/**
+		 * Data
+		 */
+
 		T* data_;			// content of array
 		unsigned int n_;	// dimension of array
+
+		/**
+		 * Functions
+		 */
+
+		// shared
 		inline void Swap_(unsigned int, unsigned int);
+
+		// QuickSort
 		int Partition_(int, int);
-		void QuickSortR_(int, int);
 		int Partition_RandPivot_(int, int);
+		void QuickSortR_(int, int);
 		void QuickSort_RandPivot_(int, int);
+
+		// MergeSort
+		void Merge_(int, int, int);
+		void MergeSortR_(int, int);
+
+		// HeapSort
 		void Heapify_(int, int, int);
 		void BuildHeap_(int, int);
 		void HeapifyShow_(int, int, int);
 		void BuildHeapShow_(int, int);
 		void PrintHeap_();
+
 	public:
+		/**
+		 * General functions
+		 */
+
+		// constructor
 		Array(unsigned int);
+
+		// get/set
 		inline void SetValue(unsigned int, T);
 		inline T GetValue(unsigned int);
 		inline unsigned int Size();
+
+		// other functions
 		void CopyTo(Array<T>*);
 		void Fill(T);
 		void RandomFill(T, T);
 		void Init();
 		void Print();
 		inline void Resize(unsigned int);
+
+		/**
+		 * Sorting algorithms
+		 */
+
+		// BubbleSort
 		void BubbleSort();
 		void BubbleSort_UseMax();
+
+		//SelectionSort
 		void SelectionSort();
 		void SelectionSort_UseMax();
+
+		// InsertionSort
 		void InsetionSort();
 		void InsertionSort_UseMin();
+		void InsertionSort_Rec();
+
+		// QuickSort
 		void QuickSort();
 		void QuickSort_RandPivot();
+
+		// MergeSort
+		void MergeSort();
+		void MergeSort_Ite();
+
+		// HeapSort
 		void HeapSort();
 		void HeapSortShow();
 };
@@ -249,27 +296,27 @@ void Array<T>::InsertionSort_UseMin() {
 
 // Helper function for QuickSort
 template <typename T>
-int Array<T>::Partition_(int low, int high) {
-	T pivot = data_[low];
-	int p = (low - 1);
+int Array<T>::Partition_(int first, int last) {
+	T pivot = data_[first];
+	int p = (first - 1);
 
-	for (int i = low; i <= high; i++) {
+	for (int i = first; i <= last; i++) {
 		if (data_[i] <= pivot) {
 			p++;
 			this->Swap_(i, p);
 		}
 	}
-	this->Swap_(low, p);
+	this->Swap_(first, p);
 	return p;
 }
 
 // Recursive helper function for QuickSort
 template <typename T>
-void Array<T>::QuickSortR_(int low, int high) {
-	if (low < high) {
-		int part_idx = this->Partition_(low, high);
-		this->QuickSortR_(low, part_idx-1);
-		this->QuickSortR_(part_idx+1, high);
+void Array<T>::QuickSortR_(int first, int last) {
+	if (first < last) {
+		int part_idx = this->Partition_(first, last);
+		this->QuickSortR_(first, part_idx-1);
+		this->QuickSortR_(part_idx+1, last);
 	}
 }
 
@@ -281,20 +328,20 @@ void Array<T>::QuickSort() {
 
 // Helper function for QuickSort_RandPivot
 template <typename T>
-int Array<T>::Partition_RandPivot_(int low, int high) {
+int Array<T>::Partition_RandPivot_(int first, int last) {
 	srand(time(nullptr));
-	int random = low + rand() % (high - low); 
-	this->Swap_(random, high);
-	return this->Partition_(low, high);
+	int random = first + rand() % (last - first); 
+	this->Swap_(random, last);
+	return this->Partition_(first, last);
 }
 
 // Recursive helper function for QuickSort_RandPivot
 template <typename T>
-void Array<T>::QuickSort_RandPivot_(int low, int high) {
-	if (low < high) {
-		int part_idx = this->Partition_RandPivot_(low, high);
-		this->QuickSortR_(low, part_idx-1);
-		this->QuickSortR_(part_idx+1, high);
+void Array<T>::QuickSort_RandPivot_(int first, int last) {
+	if (first < last) {
+		int part_idx = this->Partition_RandPivot_(first, last);
+		this->QuickSortR_(first, part_idx-1);
+		this->QuickSortR_(part_idx+1, last);
 	}
 }
 
@@ -304,32 +351,60 @@ void Array<T>::QuickSort_RandPivot() {
 	this->QuickSort_RandPivot_(0, n_-1);
 }
 
+// TODO
+template <typename T>
+void Array<T>::Merge_(int first, int last, int middle) {
+	int i, n = last - first + 1;
+	int arr1_low = first, arr1_high = middle - 1;
+	int arr2_low = middle, arr2_high = last;
+	int *arr_new = new int[n];
+
+}
+
+// TODO
+template <typename T>
+void Array<T>::MergeSortR_(int first, int last) {
+
+}
+
+// TODO
+template <typename T>
+void Array<T>::MergeSort() {
+
+}
+
+// TODO
+template <typename T>
+void Array<T>::MergeSort_Ite() {
+
+}
+
 // Helper function for HeapSort
 template <typename T>
-void Array<T>::Heapify_(int f, int l, int root) {
+void Array<T>::Heapify_(int first, int last, int root) {
 	int largest = root;
-	int left  = f + (root - f) * 2 + 1;
-	int right = f + (root - f) * 2 + 2;
+	int left  = first + (root - first) * 2 + 1;
+	int right = first + (root - first) * 2 + 2;
 	
-	if (left <= l && data_[left] > data_[largest]) {
+	if (left <= last && data_[left] > data_[largest]) {
 		largest = left;
 	}
 
-	if (right <= l && data_[right] > data_[largest]) {
+	if (right <= last && data_[right] > data_[largest]) {
 		largest = right;
 	}
 
 	if (largest != root) {
 		this->Swap_(root, largest);
-		this->Heapify_(f, l, largest);
+		this->Heapify_(first, last, largest);
 	}
 }
 
 template <typename T>
-void Array<T>::BuildHeap_(int f, int l) {
-	int n = l - f + 1;
-	for (int i = f + (n - 2) / 2; i >= f; i--) {
-		this->Heapify_(f, l, i);
+void Array<T>::BuildHeap_(int first, int last) {
+	int n = last - first + 1;
+	for (int i = first + (n - 2) / 2; i >= first; i--) {
+		this->Heapify_(first, last, i);
 	}
 }
 
@@ -346,10 +421,10 @@ void Array<T>::HeapSort() {
 
 // Helper function for HeapSort
 template <typename T>
-void Array<T>::HeapifyShow_(int f, int l, int root) {
+void Array<T>::HeapifyShow_(int first, int last, int root) {
 	int largest = root;
-	int left  = f + (root - f) * 2 + 1;
-	int right = f + (root - f) * 2 + 2;
+	int left  = first + (root - first) * 2 + 1;
+	int right = first + (root - first) * 2 + 2;
 
 	std::cout << "root: " << data_[root] << std::endl;
 	if (left < n_) {
@@ -360,18 +435,18 @@ void Array<T>::HeapifyShow_(int f, int l, int root) {
 		std::cout << std::endl;
 	}
 	
-	if (left <= l && data_[left] > data_[largest]) {
+	if (left <= last && data_[left] > data_[largest]) {
 		largest = left;
 	}
 
-	if (right <= l && data_[right] > data_[largest]) {
+	if (right <= last && data_[right] > data_[largest]) {
 		largest = right;
 	}
 
 	if (largest != root) {
 		std::cout << "-> swap " << data_[root] << " and " << data_[largest] << std::endl;
 		this->Swap_(root, largest);
-		this->HeapifyShow_(f, l, largest);
+		this->HeapifyShow_(first, last, largest);
 	}
 	else {
 		std::cout << "-> root already largest" << std::endl;
@@ -379,12 +454,12 @@ void Array<T>::HeapifyShow_(int f, int l, int root) {
 }
 
 template <typename T>
-void Array<T>::BuildHeapShow_(int f, int l) {
+void Array<T>::BuildHeapShow_(int first, int last) {
 	std::cout << "### buidling heap ###" << std::endl;
-	int n = l - f + 1;
-	for (int i = f + (n - 2) / 2; i >= f; i--) {
+	int n = last - first + 1;
+	for (int i = first + (n - 2) / 2; i >= first; i--) {
 		std::cout << "start heapify with index [" << i << "]" << std::endl;
-		this->HeapifyShow_(f, l, i);
+		this->HeapifyShow_(first, last, i);
 	}
 	std::cout << std::endl;
 }
