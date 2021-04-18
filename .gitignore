@@ -41,4 +41,5 @@
 ~$*
 
 # Other
-*/test?.cpp
+*/test.cpp
+*/test[0-99].cpp
