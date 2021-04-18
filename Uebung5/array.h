@@ -256,7 +256,7 @@ void Array<T>::SelectionSort_UseMax() {
 	int i, j, max_idx;
 
 	// One by one move boundary of unsorted subarray
-	for (i = n_; i > 0; i--) {
+	for (i = n_-1; i > 0; i--) {
 		// Find the maximum element in unsorted array
 		max_idx = i;
 		for (j = i-1; j >= 0; j--) {
