@@ -33,6 +33,7 @@ class Array {
 
 		// MergeSort
 		void Merge_(int, int, int);
+		void Merge_Ite_(int, int, int);
 		//void MergeShow_(int, int, int);
 		void MergeSortR_(int, int);
 		void MergeSortRShow_(int, int);
@@ -443,13 +444,13 @@ void Array<T>::MergeSortShow() {
 // Recursive helper function for MergeSort
 template <typename T>
 void Array<T>::MergeSortRShow_(int first, int last) {
-	std::cout << "MergeSort(" << first << "," << last << ")" << std::endl;
+	//std::cout << "MergeSort(" << first << "," << last << ")" << std::endl;
 	if (first < last) {
 		int middle = (first + last + 1) / 2;
 		MergeSortRShow_(first, middle - 1);
 		MergeSortRShow_(middle, last);
 		std::cout << "Merge(" << first << "," << last << "," << middle << ")" << std::endl;
-		Merge_(first, last, middle);
+		Merge_Ite_(first, last, middle);
 	}
 }
 
@@ -457,6 +458,54 @@ void Array<T>::MergeSortRShow_(int first, int last) {
 template <typename T>
 void Array<T>::MergeSort() {
 	MergeSortR_(0, n_-1);
+}
+
+// TODO
+template <typename T>
+void Array<T>::Merge_Ite_(int left, int right, int middle) {
+	int i, j, k;
+    int left_size = middle - left + 1;
+    int right_size =  right - middle;
+ 
+    /* create temp arrays */
+    Array<T> arr_left[left_size], arr_right[right_size];
+ 
+    /* Copy data to temp arrays L[] and R[] */
+    for (i = 0; i < left_size; i++)
+		arr_left->SetValue(i, data_[left+i]);
+
+    for (j = 0; j < right_size; j++)
+		arr_right->SetValue(j, data_[middle+j+1]);
+ 
+    /* Merge the temp arrays back into arr[l..r]*/
+    i = 0;
+    j = 0;
+    k = left;
+    while (i < left_size && j < right_size) {
+        if (arr_left->GetValue[i] <= arr_right->GetValue[j]) {
+			data_[k] = arr_left->GetValue(i);
+            i++;
+        }
+        else {
+			data_[k] = arr_right->GetValue(j);
+            j++;
+        }
+        k++;
+    }
+ 
+    /* Copy the remaining elements of L[], if there are any */
+    while (i < left_size) {
+		data_[k] = arr_left->GetValue(i);
+        i++;
+        k++;
+    }
+ 
+    /* Copy the remaining elements of R[], if there are any */
+    while (j < right_size) {
+		data_[k] = arr_right->GetValue[j];
+        j++;
+        k++;
+    }
 }
 
 // Merge Sort iterative
