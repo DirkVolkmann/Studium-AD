@@ -342,7 +342,8 @@ int Array<T>::Partition_(int first, int last) {
 	for (int i = first; i <= last; i++) {
 		if (data_[i] <= pivot) {
 			p++;
-			this->Swap_(i, p);
+			if (data_[i] < pivot)
+				this->Swap_(i, p);
 		}
 	}
 	this->Swap_(first, p);
