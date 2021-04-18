@@ -49,8 +49,9 @@ class Array {
 		 * General functions
 		 */
 
-		// constructor
+		// constructor / destructor
 		Array(unsigned int);
+		~Array();
 
 		// get/set
 		inline void SetValue(unsigned int, T);
@@ -102,6 +103,11 @@ Array<T>::Array(unsigned int n) {
 	n_ = n;
 	unsigned int len = sizeof(T) * n;
 	data_ = (T *)malloc(len);
+}
+
+template <typename T>
+Array<T>::~Array() {
+	free(data_);
 }
 
 // Set value at position [p] to value [val]
