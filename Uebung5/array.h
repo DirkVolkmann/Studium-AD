@@ -291,10 +291,10 @@ template <typename T>
 void Array<T>::InsertionSort_UseMin() {
 	int key, i, j;
 
-	for (j = n_-1; j >= 0; j--) {
+	for (j = n_-2; j >= 0; j--) {
 		key = data_[j];
 		i = j + 1;
-		while (i <= n_ && data_[i] < key) {
+		while (i < n_ && data_[i] < key) {
 			data_[i-1] = data_[i];
 			i++;
 		}
