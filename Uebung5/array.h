@@ -22,6 +22,9 @@ class Array {
 		// shared
 		inline void Swap_(unsigned int, unsigned int);
 
+		// InsertionSort
+		void InsertionSortR_(int);
+
 		// QuickSort
 		int Partition_(int, int);
 		int Partition_RandPivot_(int, int);
@@ -30,7 +33,9 @@ class Array {
 
 		// MergeSort
 		void Merge_(int, int, int);
+		//void MergeShow_(int, int, int);
 		void MergeSortR_(int, int);
+		void MergeSortRShow_(int, int);
 
 		// HeapSort
 		void Heapify_(int, int, int);
@@ -83,6 +88,7 @@ class Array {
 
 		// MergeSort
 		void MergeSort();
+		void MergeSortShow();
 		void MergeSort_Ite();
 
 		// HeapSort
@@ -145,6 +151,8 @@ void Array<T>::Fill(T val) {
 template <typename T>
 void Array<T>::RandomFill(T min, T max) {
 	srand(std::chrono::system_clock::now().time_since_epoch().count());
+
+	max++;
 
 	// make sure min is min and max is max
 	if (min > max) {
@@ -294,6 +302,30 @@ void Array<T>::InsertionSort_UseMin() {
 	}
 }
 
+template <typename T>
+void Array<T>::InsertionSortR_(int n) {
+	// Recursion base case
+	if (n <= 1) {
+		return;
+	}
+
+	// Call recursion for n-1
+	this->InsertionSortR_(n-1);
+
+	int key = data_[n-1];
+	int i = n-2;
+	while (i >= 0 && data_[i] > key) {
+		data_[i+1] = data_[i];
+		i--;
+	}
+	data_[i+1] = key;
+}
+
+template <typename T>
+void Array<T>::InsertionSort_Rec() {
+	this->InsertionSortR_(n_);
+}
+
 // Helper function for QuickSort
 template <typename T>
 int Array<T>::Partition_(int first, int last) {
@@ -362,7 +394,7 @@ void Array<T>::Merge_(int first, int last, int middle) {
 	for (i = 0; i < n; i++) {
 		if (arr1_first <= arr1_last) {
 			if (arr2_first <= arr2_last) {
-				if (data_[arr1_first] <= data_[arr2_last]) {
+				if (data_[arr1_first] <= data_[arr2_first]) {
 					arr_new[i] = data_[arr1_first++];
 				}
 				else {
@@ -385,22 +417,56 @@ void Array<T>::Merge_(int first, int last, int middle) {
 	delete [] arr_new;
 }
 
-// TODO
+// Recursive helper function for MergeSort
 template <typename T>
 void Array<T>::MergeSortR_(int first, int last) {
-
+	if (first < last) {
+		int middle = (first + last + 1) / 2;
+		MergeSortR_(first, middle - 1);
+		MergeSortR_(middle, last);
+		Merge_(first, last, middle);
+	}
 }
 
-// TODO
+// Merge Sort
+template <typename T>
+void Array<T>::MergeSortShow() {
+	MergeSortRShow_(0, n_-1);
+}
+
+// Recursive helper function for MergeSort
+template <typename T>
+void Array<T>::MergeSortRShow_(int first, int last) {
+	std::cout << "MergeSort(" << first << "," << last << ")" << std::endl;
+	if (first < last) {
+		int middle = (first + last + 1) / 2;
+		MergeSortRShow_(first, middle - 1);
+		MergeSortRShow_(middle, last);
+		std::cout << "Merge(" << first << "," << last << "," << middle << ")" << std::endl;
+		Merge_(first, last, middle);
+	}
+}
+
+// Merge Sort
 template <typename T>
 void Array<T>::MergeSort() {
-
+	MergeSortR_(0, n_-1);
 }
 
-// TODO
+// Merge Sort iterative
 template <typename T>
 void Array<T>::MergeSort_Ite() {
+	int last_index = n_ - 1;
+	int first, last, middle, iterator;
+	for (iterator = 1; iterator <= last_index; iterator *= 2) {
+		for (first = 0; first < last_index; first += iterator*2) {
+			middle = std::min(first + iterator - 1, last_index);
+			last = std::min(first + iterator * 2 - 1, last_index);
 
+			std::cout << "f: [" << first << "] l: [" << last << "] m: [" << middle << "]" << std::endl;
+			Merge_(first, last, middle);
+		}
+	}
 }
 
 // Helper function for HeapSort
@@ -424,6 +490,7 @@ void Array<T>::Heapify_(int first, int last, int root) {
 	}
 }
 
+// Helper function for HeapSort
 template <typename T>
 void Array<T>::BuildHeap_(int first, int last) {
 	int n = last - first + 1;
@@ -432,6 +499,7 @@ void Array<T>::BuildHeap_(int first, int last) {
 	}
 }
 
+// Heap Sort
 template <typename T>
 void Array<T>::HeapSort() {
 	int first = 0;
@@ -477,6 +545,7 @@ void Array<T>::HeapifyShow_(int first, int last, int root) {
 	}
 }
 
+// Helper function for HeapSortShow
 template <typename T>
 void Array<T>::BuildHeapShow_(int first, int last) {
 	std::cout << "### buidling heap ###" << std::endl;
@@ -488,6 +557,7 @@ void Array<T>::BuildHeapShow_(int first, int last) {
 	std::cout << std::endl;
 }
 
+// Heap Sort but show steps
 template <typename T>
 void Array<T>::HeapSortShow() {
 	std::cout << "unsorted tree:" << std::endl;
