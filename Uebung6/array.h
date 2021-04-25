@@ -1,0 +1,816 @@
+#ifndef _ARRAY_H
+#define _ARRAY_H	1
+
+#include <iostream>
+#include <iomanip>
+#include <chrono>			// RandomFill seed
+#include <bits/stdc++.h>	// INT_MIN, INT_MAX
+
+template <typename T>
+class Array {
+	private:
+		/**
+		 * Data
+		 */
+
+		T* data_;				// content of array
+		unsigned int n_ = 0;	// dimension of array
+
+		/**
+		 * Functions
+		 */
+
+		// shared
+		inline void Swap_(unsigned int, unsigned int);
+
+		// InsertionSort
+		void InsertionSortR_(int);
+
+		// QuickSort
+		int Partition_(int, int);
+		int Partition_RandPivot_(int, int);
+		void QuickSortR_(int, int);
+		void QuickSort_RandPivot_(int, int);
+
+		// MergeSort
+		void Merge_(int, int, int);
+		void Merge_Ite_(int, int, int);
+		//void MergeShow_(int, int, int);
+		void MergeSortR_(int, int);
+		void MergeSortRShow_(int, int);
+
+		// HeapSort
+		void Heapify_(int, int, int);
+		void BuildHeap_(int, int);
+		void HeapifyShow_(int, int, int);
+		void BuildHeapShow_(int, int);
+		void PrintHeap_();
+
+	public:
+		/**
+		 * General functions
+		 */
+
+		// constructor / destructor
+		Array(unsigned int);
+		~Array();
+
+		// get/set
+		inline void SetValue(unsigned int, T);
+		inline T GetValue(unsigned int);
+		inline unsigned int Size();
+		T Min();
+		T Max();
+
+		// other functions
+		void CopyTo(Array<T>*);
+		void Fill(T);
+		void RandomFill(T, T);
+		void Init();
+		void Print();
+		inline void Resize(unsigned int);
+
+		/**
+		 * Sorting algorithms
+		 */
+
+		// BubbleSort
+		void BubbleSort();
+		void BubbleSort_UseMax();
+
+		//SelectionSort
+		void SelectionSort();
+		void SelectionSort_UseMax();
+
+		// InsertionSort
+		void InsetionSort();
+		void InsertionSort_UseMin();
+		void InsertionSort_Rec();
+
+		// QuickSort
+		void QuickSort();
+		void QuickSort_RandPivot();
+
+		// MergeSort
+		void MergeSort();
+		void MergeSortShow();
+		void MergeSort_Ite();
+
+		// HeapSort
+		void HeapSort();
+		void HeapSortShow();
+
+		// CountSort
+		void CountSort(unsigned int);
+
+		// MapSort
+		void MapSort(double);
+};
+
+// Create a array with [n] values
+template <typename T>
+Array<T>::Array(unsigned int n) {
+	n_ = n;
+	//unsigned int len = sizeof(T) * n;
+	//data_ = (T *)malloc(len);
+	data_ = new T[n_];
+}
+
+template <typename T>
+Array<T>::~Array() {
+	//free(data_);
+	delete[] data_;
+}
+
+// Set value at position [p] to value [val]
+template <typename T>
+inline void Array<T>::SetValue(unsigned int p, T val) {
+	data_[p] = val;
+}
+
+// Get value at position [p]
+template <typename T>
+inline T Array<T>::GetValue(unsigned int p) {
+	return data_[p];
+}
+
+// Get number of possible elements in array
+template <typename T>
+inline unsigned int Array<T>::Size() {
+	return n_;
+}
+
+// Get minimum value
+template <typename T>
+T Array<T>::Min() {
+	if (n_ <= 1) return data_[0];
+
+	T min = data_[0];
+	for (int i = 1; i < n_; i++) {
+		if (min > data_[i]) {
+			min = data_[i];
+		}
+	}
+	return min;
+}
+
+// Get maximum value
+template <typename T>
+T Array<T>::Max() {
+	if (n_ <= 1) return data_[0];
+
+	T max = data_[0];
+	for (int i = 1; i < n_; i++) {
+		if (max < data_[i]) {
+			max = data_[i];
+		}
+	}
+	return max;
+}
+
+// Copy current array into another
+// - If the target array is too big remaining values wont be set
+// - If the target array is too small only values up to target size will be used
+template <typename T>
+void Array<T>::CopyTo(Array<T>* arr) {
+	unsigned int n = 0;
+	if (this->Size() <= arr->Size()) {
+		n = this->Size();
+	}
+	else {
+		n = arr->Size();
+	}
+	for (unsigned int i = 0; i < n; i++) {
+		arr->SetValue(i, data_[i]);
+	}
+}
+
+// Fill array with value
+template <typename T>
+void Array<T>::Fill(T val) {
+	for (unsigned int i = 0; i < n_; i++) {
+			data_[i] = val;
+	}
+}
+
+// Fill array with random values between [min] and [max]
+template <typename T>
+void Array<T>::RandomFill(T min, T max) {
+	srand(std::chrono::system_clock::now().time_since_epoch().count());
+
+	max++;
+
+	// make sure min is min and max is max
+	if (min > max) {
+		T tmp = min;
+		min = max;
+		max = tmp;
+	}
+	// trivial solution
+	else if (min == max) {
+		this->Fill(min);
+	}
+	// generate random number within selected range (min to max)
+	for (unsigned int i = 0; i < n_; i++) {
+		data_[i] = min + static_cast <T> (rand()) / (static_cast <T> (RAND_MAX / (max - min)));
+	}
+}
+
+// Initialize array with zeros
+template <typename T>
+void Array<T>::Init() {
+	this->Fill(0);
+}
+
+// Print all array values
+template <typename T>
+void Array<T>::Print() {
+	for (unsigned int i = 0; i < n_; i++) {
+		std::cout << data_[i];
+		if (i+1 != n_) {
+			std::cout << " | ";
+		}
+	}
+	std::cout << std::endl;
+}
+
+// Resize Array to size [n] and reallocate memory
+template <typename T>
+inline void Array<T>::Resize(unsigned int n) {
+	n_ = n;
+	unsigned int len = sizeof(T) * n;
+	data_ = (T *)realloc(data_, len);
+}
+
+// Helper function to swap two elements
+template <typename T>
+inline void Array<T>::Swap_(unsigned int index1, unsigned int index2) {
+	T tmp = data_[index1];
+	data_[index1] = data_[index2];
+	data_[index2] = tmp;
+}
+
+// Bubble Sort
+template <typename T>
+void Array<T>::BubbleSort() {
+	unsigned int i, j;
+	for (i = 0; i < n_-1; i++) {
+		for (j = 0; j < n_-i-1; j++) {
+			if (data_[j] > data_[j+1]) {
+				this->Swap_(j, j+1);
+			}
+		}
+	}
+}
+
+// Bubble Sort but maximum moves back
+template <typename T>
+void Array<T>::BubbleSort_UseMax() {
+	unsigned int i, j;
+	for (i = n_; i > 1; i--) {
+		for (j = 0; j < i-1; j++) {
+			if (data_[j] > data_[j+1]) {
+				this->Swap_(j, j+1);
+			}
+		}
+	}
+}
+
+// Selection Sort
+template <typename T>
+void Array<T>::SelectionSort() {
+	unsigned int i, j, min_idx;
+
+	// One by one move boundary of unsorted subarray
+	for (i = 0; i < n_-1; i++) {
+		// Find the minimum element in unsorted array
+		min_idx = i;
+		for (j = i+1; j < n_; j++) {
+			if (data_[j] < data_[min_idx]) {
+				min_idx = j;
+			}
+		}
+
+		// Swap the found minimum element with the first element
+		this->Swap_(min_idx, i);
+	}
+}
+
+// Selection Sort but swap maximum instead of minimum
+template <typename T>
+void Array<T>::SelectionSort_UseMax() {
+	int i, j, max_idx;
+
+	// One by one move boundary of unsorted subarray
+	for (i = n_-1; i > 0; i--) {
+		// Find the maximum element in unsorted array
+		max_idx = i;
+		for (j = i-1; j >= 0; j--) {
+			if (data_[j] > data_[max_idx]) {
+				max_idx = j;
+			}
+		}
+
+		// Swap the found maximum element with the first element
+		this->Swap_(max_idx, i);
+	}
+}
+
+// InsertionSort
+template <typename T>
+void Array<T>::InsetionSort() {
+	int key = 0, i, j;
+
+	for (j = 1; j < n_; j++) {
+		key = data_[j];
+		i = j - 1;
+		while (i >= 0 && data_[i] > key) {
+			data_[i+1] = data_[i];
+			i--;
+		}
+		data_[i+1] = key;
+	}
+}
+
+// Insetion Sort but move minimum to front
+template <typename T>
+void Array<T>::InsertionSort_UseMin() {
+	int key, i, j;
+
+	for (j = n_-2; j >= 0; j--) {
+		key = data_[j];
+		i = j + 1;
+		while (i < n_ && data_[i] < key) {
+			data_[i-1] = data_[i];
+			i++;
+		}
+		data_[i-1] = key;
+	}
+}
+
+template <typename T>
+void Array<T>::InsertionSortR_(int n) {
+	// Recursion base case
+	if (n <= 1) {
+		return;
+	}
+
+	// Call recursion for n-1
+	this->InsertionSortR_(n-1);
+
+	int key = data_[n-1];
+	int i = n-2;
+	while (i >= 0 && data_[i] > key) {
+		data_[i+1] = data_[i];
+		i--;
+	}
+	data_[i+1] = key;
+}
+
+template <typename T>
+void Array<T>::InsertionSort_Rec() {
+	this->InsertionSortR_(n_);
+}
+
+// Helper function for QuickSort
+template <typename T>
+int Array<T>::Partition_(int first, int last) {
+	T pivot = data_[first];
+	int p = (first - 1);
+
+	for (int i = first; i <= last; i++) {
+		if (data_[i] <= pivot) {
+			p++;
+			if (data_[i] < pivot)
+				this->Swap_(i, p);
+		}
+	}
+	this->Swap_(first, p);
+	return p;
+}
+
+// Recursive helper function for QuickSort
+template <typename T>
+void Array<T>::QuickSortR_(int first, int last) {
+	if (first < last) {
+		int part_idx = this->Partition_(first, last);
+		this->QuickSortR_(first, part_idx-1);
+		this->QuickSortR_(part_idx+1, last);
+	}
+}
+
+// QuickSort
+template <typename T>
+void Array<T>::QuickSort() {
+	this->QuickSortR_(0, n_-1);
+}
+
+// Helper function for QuickSort_RandPivot
+template <typename T>
+int Array<T>::Partition_RandPivot_(int first, int last) {
+	srand(time(nullptr));
+	int random = first + rand() % (last - first); 
+	this->Swap_(random, last);
+	return this->Partition_(first, last);
+}
+
+// Recursive helper function for QuickSort_RandPivot
+template <typename T>
+void Array<T>::QuickSort_RandPivot_(int first, int last) {
+	if (first < last) {
+		int part_idx = this->Partition_RandPivot_(first, last);
+		this->QuickSortR_(first, part_idx-1);
+		this->QuickSortR_(part_idx+1, last);
+	}
+}
+
+// Quick Sort but choose pivot randomly
+template <typename T>
+void Array<T>::QuickSort_RandPivot() {
+	this->QuickSort_RandPivot_(0, n_-1);
+}
+
+// Helper function for MergeSort
+template <typename T>
+void Array<T>::Merge_(int first, int last, int middle) {
+	int i, n = last - first + 1;
+	int arr1_first = first, arr1_last = middle - 1;
+	int arr2_first = middle, arr2_last = last;
+	int *arr_new = new int[n];
+
+	for (i = 0; i < n; i++) {
+		if (arr1_first <= arr1_last) {
+			if (arr2_first <= arr2_last) {
+				if (data_[arr1_first] <= data_[arr2_first]) {
+					arr_new[i] = data_[arr1_first++];
+				}
+				else {
+					arr_new[i] = data_[arr2_first++];
+				}
+			}
+			else {
+				arr_new[i] = data_[arr1_first++];
+			}
+		}
+		else {
+			arr_new[i] = data_[arr2_first++];
+		}
+	}
+
+	for (i = 0; i < n; i++) {
+		data_[first + i] = arr_new[i];
+	}
+
+	delete [] arr_new;
+}
+
+// Recursive helper function for MergeSort
+template <typename T>
+void Array<T>::MergeSortR_(int first, int last) {
+	if (first < last) {
+		int middle = (first + last + 1) / 2;
+		MergeSortR_(first, middle - 1);
+		MergeSortR_(middle, last);
+		Merge_(first, last, middle);
+	}
+}
+
+// Merge Sort
+template <typename T>
+void Array<T>::MergeSortShow() {
+	MergeSortRShow_(0, n_-1);
+}
+
+// Recursive helper function for MergeSort
+template <typename T>
+void Array<T>::MergeSortRShow_(int first, int last) {
+	//std::cout << "MergeSort(" << first << "," << last << ")" << std::endl;
+	if (first < last) {
+		int middle = (first + last + 1) / 2;
+		MergeSortRShow_(first, middle - 1);
+		MergeSortRShow_(middle, last);
+		std::cout << "Merge(" << first << "," << last << "," << middle << ")" << std::endl;
+		Merge_Ite_(first, last, middle);
+	}
+}
+
+// Merge Sort
+template <typename T>
+void Array<T>::MergeSort() {
+	MergeSortR_(0, n_-1);
+}
+
+// TODO
+template <typename T>
+void Array<T>::Merge_Ite_(int left, int right, int middle) {
+	int i, j, k;
+    int left_size = middle - left + 1;
+    int right_size =  right - middle;
+ 
+    /* create temp arrays */
+    Array<T> arr_left[left_size], arr_right[right_size];
+ 
+    /* Copy data to temp arrays L[] and R[] */
+    for (i = 0; i < left_size; i++)
+		arr_left->SetValue(i, data_[left+i]);
+
+    for (j = 0; j < right_size; j++)
+		arr_right->SetValue(j, data_[middle+j+1]);
+ 
+    /* Merge the temp arrays back into arr[l..r]*/
+    i = 0;
+    j = 0;
+    k = left;
+    while (i < left_size && j < right_size) {
+        if (arr_left->GetValue[i] <= arr_right->GetValue[j]) {
+			data_[k] = arr_left->GetValue(i);
+            i++;
+        }
+        else {
+			data_[k] = arr_right->GetValue(j);
+            j++;
+        }
+        k++;
+    }
+ 
+    /* Copy the remaining elements of L[], if there are any */
+    while (i < left_size) {
+		data_[k] = arr_left->GetValue(i);
+        i++;
+        k++;
+    }
+ 
+    /* Copy the remaining elements of R[], if there are any */
+    while (j < right_size) {
+		data_[k] = arr_right->GetValue[j];
+        j++;
+        k++;
+    }
+}
+
+// Merge Sort iterative
+template <typename T>
+void Array<T>::MergeSort_Ite() {
+	int last_index = n_ - 1;
+	int first, last, middle, iterator;
+	for (iterator = 1; iterator <= last_index; iterator *= 2) {
+		for (first = 0; first < last_index; first += iterator*2) {
+			middle = std::min(first + iterator - 1, last_index);
+			last = std::min(first + iterator * 2 - 1, last_index);
+
+			std::cout << "f: [" << first << "] l: [" << last << "] m: [" << middle << "]" << std::endl;
+			Merge_(first, last, middle);
+		}
+	}
+}
+
+// Helper function for HeapSort
+template <typename T>
+void Array<T>::Heapify_(int first, int last, int root) {
+	int largest = root;
+	int left  = first + (root - first) * 2 + 1;
+	int right = first + (root - first) * 2 + 2;
+	
+	if (left <= last && data_[left] > data_[largest]) {
+		largest = left;
+	}
+
+	if (right <= last && data_[right] > data_[largest]) {
+		largest = right;
+	}
+
+	if (largest != root) {
+		this->Swap_(root, largest);
+		this->Heapify_(first, last, largest);
+	}
+}
+
+// Helper function for HeapSort
+template <typename T>
+void Array<T>::BuildHeap_(int first, int last) {
+	int n = last - first + 1;
+	for (int i = first + (n - 2) / 2; i >= first; i--) {
+		this->Heapify_(first, last, i);
+	}
+}
+
+// Heap Sort
+template <typename T>
+void Array<T>::HeapSort() {
+	int first = 0;
+	int last = n_ - 1;
+	this->BuildHeap_(first, last);
+	for (int i = last; i > first; i--) {
+		this->Swap_(first, i);
+		this->Heapify_(first, i-1, first);
+	}
+}
+
+// Helper function for HeapSort
+template <typename T>
+void Array<T>::HeapifyShow_(int first, int last, int root) {
+	int largest = root;
+	int left  = first + (root - first) * 2 + 1;
+	int right = first + (root - first) * 2 + 2;
+
+	std::cout << "root: " << data_[root] << std::endl;
+	if (left < n_) {
+		std::cout << "left: " << data_[left];
+		if (right < n_) {
+			std::cout << " | right: " << data_[right];
+		}
+		std::cout << std::endl;
+	}
+	
+	if (left <= last && data_[left] > data_[largest]) {
+		largest = left;
+	}
+
+	if (right <= last && data_[right] > data_[largest]) {
+		largest = right;
+	}
+
+	if (largest != root) {
+		std::cout << "-> swap " << data_[root] << " and " << data_[largest] << std::endl;
+		this->Swap_(root, largest);
+		this->HeapifyShow_(first, last, largest);
+	}
+	else {
+		std::cout << "-> root already largest" << std::endl;
+	}
+}
+
+// Helper function for HeapSortShow
+template <typename T>
+void Array<T>::BuildHeapShow_(int first, int last) {
+	std::cout << "### buidling heap ###" << std::endl;
+	int n = last - first + 1;
+	for (int i = first + (n - 2) / 2; i >= first; i--) {
+		std::cout << "start heapify with index [" << i << "]" << std::endl;
+		this->HeapifyShow_(first, last, i);
+	}
+	std::cout << std::endl;
+}
+
+// Heap Sort but show steps
+template <typename T>
+void Array<T>::HeapSortShow() {
+	std::cout << "unsorted tree:" << std::endl;
+	this->PrintHeap_();
+	std::cout << std::endl;
+
+	int first = 0;
+	int last = n_ - 1;
+
+	this->BuildHeapShow_(first, last);
+
+	std::cout << "tree after build:" << std::endl;
+	this->PrintHeap_();
+	std::cout << std::endl;
+
+	for (int i = last; i > first; i--) {
+		std::cout << "### sorting run " << last-i+1 << " of " << last << " ###" << std::endl;
+		std::cout << "swap [" << first << "] and [" << i << "] (" << data_[first] << " and " << data_[i] << ")" << std::endl;
+		this->Swap_(first, i);
+		this->HeapifyShow_(first, i-1, first);
+		std::cout << std::endl << "tree after run:" << std::endl;
+		this->PrintHeap_();
+		std::cout << std::endl;
+	}
+}
+
+// Print array as heap/tree
+template <typename T>
+void Array<T>::PrintHeap_() {
+	// calculate indentations for first line
+	int indents = 1;
+	int rest = n_ - indents;
+	while (rest > 0) {
+		indents *= 2;
+		rest -= indents;
+	}
+
+	// other variables
+	int vals_in_line = 1;
+	int idx_min = 0;
+	int idx_max = 0;
+
+	while (1) {
+		for (int i = idx_min; i <= idx_max; i++) {
+			// print left indentations
+			for (int j = 0; j < indents - 1; j++) {
+				std::cout << "    ";
+			}
+
+			/*if (i == idx_min && i != idx_max) {
+				std::cout << " ";
+			}*/
+
+			// print value
+			std::cout << std::setw(4) << data_[i];
+
+			/*if (i+1 <= idx_max && i+1 < n_) {
+				std::cout << "  ";
+			}*/
+
+			// print right indentations
+			for (int j = 0; j < indents; j++) {
+				std::cout << "    ";
+			}
+			if (i == idx_max) {
+				std::cout << std::endl;
+			}
+
+			// return condition
+			if (i+1 >= n_) {
+				std::cout << std::endl;
+				return;
+			}
+		}
+
+		// calculate variables for next run
+		indents /= 2;
+		vals_in_line *= 2;
+		idx_min = vals_in_line - 1;
+		idx_max = vals_in_line * 2 - 2;
+	}
+}
+
+// Count Sort
+template <>
+void Array<int>::CountSort(unsigned int maximum_value) {
+	// create variables and counting array O(1)
+	int i = 0;
+	int j = 0;
+	int *arr_count = new int[maximum_value + 1];
+	
+	// set all counters to zero O(k)
+	for (i = 0; i < maximum_value; i++) {
+		arr_count[i] = 0;
+	}
+
+	// count values O(n)
+    for (i = 0; i < n_; i++) {
+		arr_count[data_[i]]++; 
+	}
+
+	// rebuild sorted array O(2n) + O(k) ?
+    for (i = 0; i < n_; i++) {
+        while (arr_count[j] == 0) j++;
+        data_[i] = j;
+		arr_count[j]--;
+    }
+
+	delete[] arr_count;
+}
+
+// Map Sort
+template <>
+void Array<int>::MapSort(double c) {
+	int newn = (int)((double)n_*c), i, j = 0;
+    int *bin = new int[newn], max = INT_MIN, min = INT_MAX;
+
+    for (i = 0; i < newn; i++)
+        bin[i] = -1;
+    for (i = 0; i < n_; i++) {
+        if (data_[i] < min)
+            min = data_[i];
+        if (data_[i] > max)
+            max = data_[i];
+    }
+
+    double dist = (double)(max-min)/(double)(newn-1);
+
+    for (i = 0; i < n_; i++){
+        int t = (int)((double)(data_[i]-min)/dist), insert = data_[i], left = 0;
+        if (bin[t] != (-1) && insert <= bin[t])
+            left = 1;
+        
+        while (bin[t] != (-1)) {
+            if (left == 1) {
+                if (insert > bin[t])
+                    std::swap(bin[t], insert);
+                if (t > 0)
+                    t--;
+                else
+                    left = 0;
+            }
+            else {
+                if (insert <= bin[t])
+                    std::swap(bin[t], insert);
+                if (t < newn-1)
+                    t++;
+                else
+                    left = 1;
+            }
+        }
+        bin[t] = insert;
+    }
+    for (i = 0; i < newn; i++)
+        if (bin[i] != (-1))
+            data_[j++] = bin[i];
+
+    delete [] bin;
+}
+
+#endif /* <array.h> included.  */
