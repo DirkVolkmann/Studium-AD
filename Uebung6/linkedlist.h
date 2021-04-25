@@ -42,9 +42,9 @@ LinkedList<T>::~LinkedList() {
 }
 
 template <typename T>
-void LinkedList<T>::Append(T value_to_apptail) {
+void LinkedList<T>::Append(T value_to_append) {
   LLElement<T> *element = new LLElement<T>;
-  element->value = value_to_apptail;
+  element->value = value_to_append;
   element->next = nullptr;
 
   if (tail_ == nullptr) {
@@ -58,12 +58,12 @@ void LinkedList<T>::Append(T value_to_apptail) {
 
 template <typename T>
 void LinkedList<T>::DeleteList() {
-  LLElement<T> *currentent = head_;
+  LLElement<T> *current = head_;
   LLElement<T> *next = nullptr;
-  while (currentent != nullptr) {
-    next = currentent->next;
-    delete currentent;
-    currentent = next;
+  while (current != nullptr) {
+    next = current->next;
+    delete current;
+    current = next;
   }
   head_ = nullptr;
   tail_ = nullptr;
@@ -71,33 +71,33 @@ void LinkedList<T>::DeleteList() {
 
 template <typename T>
 void LinkedList<T>::DeleteValue(T value_to_delete) {
-  LLElement<T> *currentent = head_, *previousious = nullptr;
+  LLElement<T> *current = head_, *previous = nullptr;
 
-  while (currentent != nullptr) {
-    if (currentent->value == value_to_delete) {
-      if (previousious == nullptr)
-        head_ = currentent->next;
+  while (current != nullptr) {
+    if (current->value == value_to_delete) {
+      if (previous == nullptr)
+        head_ = current->next;
       else
-        previousious->next = currentent->next;
+        previous->next = current->next;
 
-      if (currentent == tail_) tail_ = previousious;
+      if (current == tail_) tail_ = previous;
 
-      LLElement<T> *delete_this = currentent;
-      currentent = currentent->next;
+      LLElement<T> *delete_this = current;
+      current = current->next;
       delete delete_this;
     } else {
-      previousious = currentent;
-      currentent = currentent->next;
+      previous = current;
+      current = current->next;
     }
   }
 }
 
 template <typename T>
 void LinkedList<T>::Print() {
-  LLElement<T> *currentent = head_;
-  while (currentent != nullptr) {
-    std::cout << currentent->value << " ";
-    currentent = currentent->next;
+  LLElement<T> *current = head_;
+  while (current != nullptr) {
+    std::cout << current->value << " ";
+    current = current->next;
   }
   std::cout << std::endl;
 }
